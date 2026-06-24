@@ -89,15 +89,6 @@ public class CloudFoundryActuatorAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	@ConditionalOnAvailableEndpoint
-	@ConditionalOnBean({ HealthEndpoint.class, HealthEndpointWebExtension.class })
-	public CloudFoundryHealthEndpointWebExtension cloudFoundryHealthEndpointWebExtension(
-			HealthEndpointWebExtension healthEndpointWebExtension) {
-		return new CloudFoundryHealthEndpointWebExtension(healthEndpointWebExtension);
-	}
-
-	@Bean
-	@ConditionalOnMissingBean
-	@ConditionalOnAvailableEndpoint
 	@ConditionalOnBean({ InfoEndpoint.class, GitProperties.class })
 	public CloudFoundryInfoEndpointWebExtension cloudFoundryInfoEndpointWebExtension(GitProperties properties,
 			ObjectProvider<InfoContributor> infoContributors) {
@@ -155,6 +146,21 @@ public class CloudFoundryActuatorAutoConfiguration {
 		corsConfiguration
 			.setAllowedHeaders(Arrays.asList(HttpHeaders.AUTHORIZATION, "X-Cf-App-Instance", HttpHeaders.CONTENT_TYPE));
 		return corsConfiguration;
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@ConditionalOnClass(HealthEndpoint.class)
+	static class HealthConfiguration {
+
+		@Bean
+		@ConditionalOnMissingBean
+		@ConditionalOnAvailableEndpoint
+		@ConditionalOnBean({ HealthEndpoint.class, HealthEndpointWebExtension.class })
+		CloudFoundryHealthEndpointWebExtension cloudFoundryHealthEndpointWebExtension(
+				HealthEndpointWebExtension healthEndpointWebExtension) {
+			return new CloudFoundryHealthEndpointWebExtension(healthEndpointWebExtension);
+		}
+
 	}
 
 	/**
